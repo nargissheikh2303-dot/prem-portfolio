@@ -1,0 +1,2 @@
+Upload images to this folder (jpg, png, webp).
+They appear on the site by themselves after the next deploy, newest first.
