@@ -40,8 +40,18 @@ const FALLBACK = {
 };
 
 // When each file was last added or changed, from git history (if there is any).
+// Cloudflare checks out only the latest commit, which makes every file look
+// equally new, so the full history is fetched first.
 function gitDates() {
   const dates = {};
+  try {
+    const shallow = execSync("git rev-parse --is-shallow-repository", {
+      cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+    if (shallow === "true") {
+      execSync("git fetch --unshallow --quiet", { cwd: ROOT, stdio: "ignore", timeout: 60000 });
+    }
+  } catch (e) { /* no git or no network: dates may be missing, names are used */ }
   try {
     const out = execSync('git log --format="@%ct" --name-only -- images', {
       cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"],
